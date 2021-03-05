@@ -1,0 +1,14 @@
+version: '2'
+services:
+  api:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
+      - ./manage.py:/manage.py
+      - /etc/timezone:/etc/timezone
+      - /etc/localtime:/etc/localtime
+    ports:
+      - 8080:8080
