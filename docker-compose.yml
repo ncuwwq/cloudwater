@@ -12,3 +12,14 @@ services:
       - /etc/localtime:/etc/localtime
     ports:
       - 8080:8080
+  server:
+    restart: always
+    build:
+      context: .
+      dockerfile: MQTTDockerfile
+    volumes:
+      - ./app:/app
+      - ./MQTTClient.py:/MQTTClient.py
+      - /etc/timezone/timezone:/etc/timezone
+      - /etc/localtime:/etc/localtime
+

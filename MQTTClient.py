@@ -33,7 +33,7 @@ def on_message(client, userdata, msg):
         t = threading.Thread(target=setTime, args=(msg.payload, msg.topic,))
         t.start()
     if msg.topic == "update":
-        URL = 'http://192.168.1.106:8080/api/emqx/switch'
+        URL = 'http://'+ EMQX.host+':8080/api/emqx/switch'
         headers = {"Content-Type": "application/json"}
         data = json.dumps({"data": {"switch": int(msg.payload)}})
         r = requests.post(URL, headers=headers, data=data)
