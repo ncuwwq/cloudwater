@@ -6,6 +6,15 @@ from app import db
 import datetime
 
 
+def to_dict(t):
+    info = {
+        "id": t.id,
+        "startDate": t.startDate,
+        "endDate": t.endDate
+    }
+    return info
+
+
 class Emqx(Resource):
     def post(self):
         req = reqparse.RequestParser()
@@ -48,4 +57,15 @@ class Emqx(Resource):
         }
 
     def get(self):
-        pass
+        tasklist = TaskModel.query.order_by(TaskModel.id.desc()).all()
+        if not tasklist:
+            return {
+                "status": 0
+            }
+        info = []
+        for t in tasklist:
+            info.append(to_dict(t))
+        return {
+            "status": 200,
+            "tasklist": info
+        }
