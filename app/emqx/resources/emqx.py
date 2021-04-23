@@ -7,10 +7,13 @@ import datetime
 
 
 def to_dict(t):
+    status = {0: "未开始", 1: "已完成", 2: "进行中", 3: "已取消"}
     info = {
-        "id": t.id,
+        "id": str(t.id),
         "startDate": t.startDate,
-        "endDate": t.endDate
+        "endDate": t.endDate,
+        "status": status[t.done],
+        "isTouchMove": False,
     }
     return info
 
@@ -42,12 +45,13 @@ class Emqx(Resource):
                 }
             task = TaskModel(startDate=data['startDate'], endDate=data['endDate'], done=0)
             db.session.add(task)
+            db.session.flush()
             db.session.commit()
             try:
                 client = mqtt.Client()
                 client.connect(EMQX.host, EMQX.port)
-                client.publish('startDate', payload=startDate, qos=0)
-                client.publish('endDate', payload=endDate, qos=0)
+                timeDate = {"startDate": startDate, "endDate": endDate, "id": task.id}
+                client.publish('setTime', payload=str(timeDate), qos=0)
             except:
                 return {
                     "status": 400
@@ -68,4 +72,24 @@ class Emqx(Resource):
         return {
             "status": 200,
             "tasklist": info
+        }
+
+    def put(self):
+        req = reqparse.RequestParser()
+        req.add_argument('data', type=dict, required=True, location='json')
+        args = req.parse_args()['data']
+        id = args["id"]
+        try:
+            client = mqtt.Client()
+            client.connect(EMQX.host, EMQX.port)
+            client.publish('delTask', payload=id, qos=0)
+            task = TaskModel.query.filter_by(id=id).first()
+            task.done = 3
+            db.session.commit()
+        except:
+            return {
+                "status": 400
+            }
+        return {
+            "status": 200
         }
