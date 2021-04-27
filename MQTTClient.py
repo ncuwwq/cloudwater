@@ -39,7 +39,9 @@ def setTime(timeDate, client):
         current = current.strftime("%m/%d %H:%M")
         if current == timeDate["startDate"]:
             client.publish('switch', payload="1", qos=0)
-            engine.execute("update task set done = {0}  where id = {1}".format(2, timeDate["id"]))
+            session=engine.connect()
+            session.execute("update task set done = {0}  where id = {1}".format(2, timeDate["id"]))
+            session.close()
             break
     while (True):
         current = datetime.datetime.now()
@@ -47,7 +49,9 @@ def setTime(timeDate, client):
         if current == timeDate["endDate"]:
             client.publish('switch', payload="0", qos=0)
             del ts[timeDate["id"]]
+            session = engine.connect()
             engine.execute("update task set done = {0}  where id = {1}".format(1, timeDate["id"]))
+            session.close()
             break
 
 
