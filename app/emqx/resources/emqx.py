@@ -64,7 +64,8 @@ class Emqx(Resource):
         tasklist = TaskModel.query.order_by(TaskModel.id.desc()).all()
         if not tasklist:
             return {
-                "status": 0
+                "status": 200,
+                "tasklist": []
             }
         info = []
         for t in tasklist:
